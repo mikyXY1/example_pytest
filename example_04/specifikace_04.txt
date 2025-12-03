@@ -1,0 +1,60 @@
+SPECIFIKACE APLIKACE: HAZENI MINCI SE VSTUPEM UZIVATELE
+=====================================================
+
+ÚČEL:
+Aplikace simuluje hod mincí a následně požádá uživatele o zadání čísla s chytrým ošetřením vstupů.
+
+CHOVÁNÍ APLIKACE:
+
+1. HOD MINCÍ:
+   - Importovat knihovnu random
+   - Generovat náhodné číslo v rozsahu 0-1 pomocí random.randint(0, 1)
+   - Výstup: Vypsat na obrazovku:
+     * "hlava" - když je vygenerované číslo 0
+     * "orel"  - když je vygenerované číslo 1
+
+2. VSTUP OD UŽIVATELE:
+   - Vyzvat uživatele k zadání čísla: "Zadej zkoumane cislo\n"
+   - Aplikace OČEKÁVÁ: Celočíselný vstup (integer)
+   
+3. VALIDACE A KONVERZE VSTUPU:
+   - Aplikace kontroluje, že vstup je číslo ve formátu int
+   - PŘÍPADY KONVERZE (auto-konverze):
+     * String "123" → int 123 ✓ PLATNÝ
+     * String "-10" → int -10 ✓ PLATNÝ
+     * Float 3.14 → int 3 (truncate) ✓ PLATNÝ
+     * Boolean True → int 1 ✓ PLATNÝ
+     * Boolean False → int 0 ✓ PLATNÝ
+   
+   - PŘÍPADY CHYBY (nelze konvertovat):
+     * String "kkk" → ✗ CHYBA
+     * String "abc" → ✗ CHYBA
+     * String "hogofogo" → ✗ CHYBA
+     * String "123abc" → ✗ CHYBA
+
+4. VÝSTUP PRO PLATNÝ VSTUP:
+   - Formát: "Zadane cislo je <ČÍSLO>"
+   - Příklady:
+     * Vstup "42" → Výstup: "Zadane cislo je 42"
+     * Vstup "-10" → Výstup: "Zadane cislo je -10"
+     * Vstup "0" → Výstup: "Zadane cislo je 0"
+
+5. OŠETŘENÍ CHYB (ValueError):
+   - Když se vstup nepodaří konvertovat na int (ValueError):
+     * Aplikace MUSÍ zachytit ValueError pomocí try-except
+     * Aplikace MUSÍ vypsat: "Chybne zadany vstup"
+     * Aplikace se NESMÍ zhroutit s chybovou zprávou
+   
+   - Příklady chybných vstupů:
+     * Uživatel zadá: "kkk" → Výstup: "Chybne zadany vstup"
+     * Uživatel zadá: "hogofogo" → Výstup: "Chybne zadany vstup"
+     * Uživatel zadá: "xyz123" → Výstup: "Chybne zadany vstup"
+
+SOUHRN TOKU PROGRAMU:
+1. Vygeneruj náhodné číslo (0 nebo 1)
+2. Vypíš výsledek hodu mince ("hlava" nebo "orel")
+3. Požádej uživatele o vstup
+4. Pokus se konvertovat vstup na int
+   - POKUD ÚSPĚCH: Vypíš "Zadane cislo je <číslo>"
+   - POKUD CHYBA: Vypíš "Chybne zadany vstup"
+5. Skončí
