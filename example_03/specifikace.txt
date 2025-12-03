@@ -1,0 +1,76 @@
+prod01.py:
+- Používá knihovnu `prod_lib` (import jako `pl`).
+- Obsahuje funkci `main()`.
+- `main()` provede následující kroky pořadově:
+  1. Zavolá `pl.better_name(first, last)` s dvěma argumenty typu string (viz příklad v kódu).
+     - `better_name` vypíše na standardní výstup (stdout) zformátované jméno (viz níže).
+  2. Zavolá `pl.better_name_return(first, last)` s dvěma argumenty typu string.
+     - Návratová hodnota (string) se uloží do proměnné `name` a následně se vytiskne pomocí
+       `print(f"Returned name: {name}")`.
+
+prod_lib.py - specifikace chování funkcí
+
+- better_name(first_name, second_name):
+  - Parametry:
+    - Oba parametry mohou být libovolné hodnoty; implementace by měla v ideálním případě
+      koercovat hodnoty na stringy (např. čísla, booleany, None jsou převedeny pomocí `str()`).
+    - Před zpracováním se odstraní vedoucí a koncové bílé znaky (`strip()`).
+  - Chování:
+    - Funkce spojí první a druhý parametr pomocí jediné mezery mezi nimi: `"{first} {second}"`.
+    - Výsledný řetězec se upraví do „title case“ pomocí `str.title()` (tj. každé slovo začne velkým písmenem).
+      - Poznámka: `str.title()` má svá pravidla (např. po tečkách může být písmeno velké). Testy by měly
+        akceptovat chování odpovídající `title()` nebo explicitně kontrolovat inicialy.
+    - Funkce vypíše (print) tento title-cased řetězec na standardní výstup.
+    - Funkce NEVRACÍ hodnotu (nebo vrací `None`).
+
+- better_name_return(first_name, second_name):
+  - Parametry:
+    - Stejně jako u `better_name` — vstupy by měly být koercovány na stringy a oříznuty (`strip()`).
+  - Chování:
+    - Funkce spojí parametry jedinou mezerou mezi nimi a provede title-casing (stejně jako `better_name`).
+    - Pokud výsledný title-cased řetězec obsahuje více než 15 znaků, vrátí se pouze prvních 15
+      znaků (tj. jednoduché zkrácení `formatted[:15]`).
+      - Poznámka: zkrácení je prováděno na již zformátovaném řetězci (po `title()` a `strip()`).
+    - Pokud výsledný řetězec má 15 nebo méně znaků, vrátí se celý řetězec.
+    - Příklady:
+      - `better_name_return("john","doe")` -> `"John Doe"` (9 znaků)
+      - `better_name_return("mary-jane","watson")` -> `"Mary-Jane Watso"` (15 znaků, zkráceno)
+      - `better_name_return(123, 456)` -> `"123 456"` (koercováno na stringy)
+  - Chování pro prázdné a bílé znaky:
+    - Pokud oba vstupy jsou prázdné nebo obsahují pouze bílé znaky, vrátí se prázdný řetězec `""`.
+    - Pokud jeden argument je prázdný a druhý obsahuje platný text, vrátí se pouze ten text (po title-casing
+      a případném oříznutí na 15 znaků).
+
+Další nejednoznačnosti a jak je řešíme (doplnění spec):
+- Title-casing pravidla:
+  - Použijeme standardní `str.title()` chování Pythonu; testy by měly akceptovat výsledky odpovídající `title()`.
+  - Pro kontrolu počátečních písmen (např. u inicial) testy kontrolují pouze, že první alfabetické písmeno v
+    každém segmentu je velké (např. `J.R.` nebo `J.r.` oba budou mít `J` jako velké písmeno).
+- Unicode:
+  - Funkce musí podporovat Unicode znaky; délka na 15 znaků se měří podle Python `len()` (počet kódových bodů),
+    nikoli podle bajtů.
+- Zpracování netextových vstupů:
+  - Hodnoty, které nejsou stringy (čísla, booleany, None, float apod.) budou koercovány pomocí `str()`.
+  - Pokud požadujete přísnější validaci (např. pouze str a jinak vyhození chyby), bude to nutné explicitně
+    doplnit do specifikace a upravit implementaci/testy.
+- Truncation a mezera:
+  - Truncation se provádí na kompletním formatted stringu. To znamená, že v případě velmi dlouhého příjmení
+    může být mezera stále zachována (např. `First LastLong...` -> po zkrácení může být mezera zachována
+    nebo odstraněna v závislosti na místě zkrácení). Testy by měly akceptovat, že truncation je prosté `[:15]`.
+
+Doporučení pro testy a integraci
+- Testy by měly explicitně ověřovat:
+  - title-casing pro běžné jména (lower/upper/mixed case),
+  - truncation na 15 znaků (včetně ověření, že se truncation provádí po `title()`),
+  - chování u prázdných vstupů a whitespace-only vstupů,
+  - koercování netextových typů na stringy,
+  - zachování Unicode a měření délky pomocí `len()`.
+- Integrace `prod01.main()`:
+  - `main()` volá obě funkce; testy by měly zachytit výstup na stdout a ověřit, že
+    se tiskne zformátované jméno a řetězec obsahující `Returned name:` následovaný návratovou hodnotou.
+
+Pokud chcete, mohu:
+- upravit implementaci, aby místo prostého `[:15]` používala „rozumnější“ zkrácení (např. neodstranit mezeru
+  mezi jmény, oříznout jen příjmení apod.), nebo
+- změnit chování tak, že místo koercování na string vyhodí chybu pro ne-string vstupy.
+
