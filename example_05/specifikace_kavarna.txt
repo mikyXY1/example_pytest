@@ -1,0 +1,83 @@
+Specifikace pro testování aplikace kavarna.py
+
+Cíl:
+- Otestovat třídy `Osoba` a `Kavarna` a jejich veřejné metody tak, aby bylo ověřeno správné chování bez interaktivního zásahu uživatele.
+
+Prostředí:
+- Python 3.8+
+- Testovací framework: pytest
+- Testy budou používat `capsys` pro zachycení výstupu na stdout a `monkeypatch` pro nahrazení `input()` v interaktivních scénářích.
+
+Testované soubory:
+- `kavarna.py` (obsahuje `Osoba`, `Kavarna`, metody `pridat_zakaznika`, `print_zakaznici`, `objednej_napoj`, `objednej_napoj_od_uzivatele`)
+
+Obecné zásady:
+- Testy by měly být deterministické (žádný skutečný uživatelský vstup během běhu testů).
+- Výstupy se kontrolují jako podřetězce (obsahují očekávané fráze), aby byly testy odolné vůči drobným formátovacím změnám.
+- U metody `objednej_napoj_od_uzivatele` testovat jak úspěšný výběr (nápoj v nabídce), tak neúspěšný výběr (není v nabídce).
+
+Seznam testovacích případů (minimálně 5 testů):
+
+1) Test `Osoba` - atributy a `print_info()`
+   - Účel: Ověřit, že instance `Osoba` uchovává `jmeno`, `oblibeny_napoj` a `nalada` a že `print_info()` vypisuje očekávané informace.
+   - Kroky:
+     1. Vytvořit `Osoba("Alena", "čaj", False)`.
+     2. Assertovat atributy `jmeno`, `oblibeny_napoj`, `nalada`.
+     3. Zavolat `print_info()` a pomocí `capsys` zkontrolovat, že výstup obsahuje "Jméno: Alena" a "Oblíbený nápoj: čaj".
+
+2) Test `Kavarna.pridat_zakaznika` a `print_zakaznici()`
+   - Účel: Ověřit, že metoda `pridat_zakaznika` přidá objekt `Osoba` do `zakaznici` a že `print_zakaznici()` vypíše informace o zákazníkovi.
+   - Kroky:
+     1. Vytvořit `Kavarna("TestCafe", "Ulice 1")`.
+     2. Vytvořit `Osoba("Karel", "káva", True)` a zavolat `pridat_zakaznika()`.
+     3. Assertovat, že `k.zakaznici[-1] is o`.
+     4. Zavolat `print_zakaznici()` a pomocí `capsys` kontrolovat, že výstup obsahuje "Karel".
+
+3) Test `Kavarna.objednej_napoj` - dostupný nápoj
+   - Účel: Ověřit, že pro nápoj v `nabidka` se vytiskne informace o objednávce a náladě.
+   - Kroky:
+     1. Vytvořit `Kavarna` a `Osoba("Marta", "čaj", False)`.
+     2. Zavolat `objednej_napoj(o, "čaj")`.
+     3. Pomocí `capsys` zkontrolovat, že výstup obsahuje fráze jako "Marta si objednal(a) čaj za" a "Nálada zákazníka Marta je nyní šťastná.".
+
+4) Test `Kavarna.objednej_napoj` - nedostupný nápoj
+   - Účel: Ověřit správnou chybovou zprávu pro nápoj, který není v nabídce.
+   - Kroky:
+     1. Vytvořit `Kavarna` a `Osoba("Luděk", "káva", True)`.
+     2. Zavolat `objednej_napoj(o, "pivo")`.
+     3. Pomocí `capsys` zkontrolovat, že výstup obsahuje "Promiňte, pivo není v nabídce.".
+
+5) Test `Kavarna.objednej_napoj_od_uzivatele` - interaktivní scénáře (2 podpřípady)
+   - Účel: Ověřit chování metody, která čte uživatelský vstup přes `input()`.
+   - Podpřípad A (validní volba):
+     - Monkeypatch `input()` tak, aby vrátil např. "káva".
+     - Očekávat návratovou hodnotu `True`, `osoba.nalada` se nastaví na `True` a výstup obsahuje informaci o objednávce.
+   - Podpřípad B (nevalidní volba):
+     - Monkeypatch `input()` tak, aby vrátil např. "pivo".
+     - Očekávat návratovou hodnotu `False`, `osoba.nalada` zůstane nezměněna a výstup obsahuje informaci, že volba není v nabídce.
+   - Poznámky:
+     - Testovat citlivost na mezery a velká/malá písmena (např. vstup `"  KÁva  "` by měl být lower/strip-ován ve funkci; pokud funkce toto nezpracovává, asertovat současné chování nebo upravit test podle implementace).
+
+Doplňující testy / okrajové případy (doporučené, ne povinné):
+- Zavolat `objednej_napoj_od_uzivatele` s prázdným řetězcem jako vstup a ověřit očekávanou odpověď (False).
+- Ověřit, že `Kavarna.nabidka` obsahuje očekávané klíče a ceny (např. že `"káva" in k.nabidka` a její cena je celé číslo > 0).
+- Ověřit chování `print_zakaznici()` když není žádný zákazník (mělo by nic netisknout kromě možného prázdného výstupu).
+
+Jak spouštět testy:
+- Z kořenového adresáře projektu (nebo z adresáře `example_pytest/example_05`) spustit:
+
+```bash
+pytest -q example_pytest/example_05
+```
+
+- Pro spuštění jednoho testu použít např.:
+
+```bash
+pytest -q example_pytest/example_05/test_kavarna.py::test_objednej_napoj_available
+```
+
+Poznámky pro vývojáře:
+- Pokud implementace metody `objednej_napoj_od_uzivatele` změní způsob zpracování vstupu (např. odstraní `.lower().strip()`), upravit testy tak, aby odpovídaly aktuálnímu očekávanému chování.
+- Specifikace předpokládá, že výstupy jsou psány na stdout standardní `print()` funkcí.
+
+Konec specifikace.
