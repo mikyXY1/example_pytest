@@ -1,4 +1,5 @@
-#pytest test_kavarna.py pro testování aplikace kavarna.py - obsahuje 5 testů pro třídy Osoba a Kavarna
+#pytest test_kavarna.py pro testování aplikace kavarna.py 
+#obsahuje 5 testů pro třídy Osoba a Kavarna
 
 import builtins
 import pytest
